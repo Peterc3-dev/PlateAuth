@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FF0A0A0A"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/status_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Initializing..."
+        android:textColor="#FF00E5FF"
+        android:textSize="14sp"
+        android:fontFamily="monospace"
+        android:background="#FF1A1A2E"
+        android:padding="10dp"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <Button
+            android:id="@+id/btn_capture_plate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="⬡ Plate"
+            android:textSize="11sp"
+            android:backgroundTint="#FF1B5E20"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_capture_bare"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="○ Bare"
+            android:textSize="11sp"
+            android:backgroundTint="#FF4E342E"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_capture_air"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="◌ Air"
+            android:textSize="11sp"
+            android:backgroundTint="#FF1A237E" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <Button
+            android:id="@+id/btn_compare"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Compare"
+            android:textSize="11sp"
+            android:backgroundTint="#FF37474F"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_enroll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enroll"
+            android:textSize="11sp"
+            android:backgroundTint="#FFE65100"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_authenticate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="⚷ Auth"
+            android:textSize="11sp"
+            android:backgroundTint="#FFB71C1C" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FF0D0D0D"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/log_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FF00FF41"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:lineSpacingMultiplier="1.2" />
+    </ScrollView>
+</LinearLayout>
