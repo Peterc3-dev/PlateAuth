@@ -26,8 +26,8 @@ Capture data (timestamped NFC tag events with technology metadata) is saved as J
 - **Language**: Kotlin
 - **Platform**: Android (NFC ReaderMode API)
 - **Min SDK**: 24 (Android 7.0)
-- **Target SDK**: 34 (Android 14)
-- **Dependencies**: None beyond Android SDK
+- **Target SDK**: 35 (Android 15)
+- **Dependencies**: None beyond Android SDK (JUnit 4 for unit tests only)
 
 ## Status
 
@@ -45,6 +45,25 @@ Or from the command line:
 ./gradlew assembleDebug
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
+
+## Testing
+
+The statistical core (timing/gap/rate statistics, profile construction, and the
+authentication scoring rule) lives in [`SignatureAnalysis`](app/src/main/java/com/plateauth/SignatureAnalysis.kt),
+a framework-free Kotlin object that `MainActivity` delegates to. It has JVM unit
+tests that run with no device or emulator:
+
+```bash
+./gradlew test
+```
+
+NFC capture and the UI are Android-framework bound and are not covered by these
+unit tests (they require a physical NFC device).
+
+## Continuous Integration
+
+`.github/workflows/ci.yml` runs `./gradlew assembleDebug test lint` on every push
+and pull request (JDK 17, Temurin). This is the project's first automated build.
 
 ## License
 

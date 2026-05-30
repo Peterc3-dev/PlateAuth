@@ -274,11 +274,9 @@ class MainActivity : Activity(), NfcAdapter.ReaderCallback {
         val profile = enrolledProfile ?: run { log("No profile enrolled."); return }
         val attempt = buildProfile("auth_attempt", events)
 
-        val rateDiff = Math.abs(profile.avgEventsPerSecond - attempt.avgEventsPerSecond)
-        val gapDiff = Math.abs(profile.avgTimeBetweenEvents - attempt.avgTimeBetweenEvents)
-        val countDiff = Math.abs(profile.eventCount - attempt.eventCount)
-
-        val score = listOf(rateDiff < 2.0, gapDiff < 500.0, countDiff < 20).count { it }
+        val score = SignatureAnalysis.matchScore(
+            profile.toAnalysisProfile(), attempt.toAnalysisProfile()
+        )
 
         log("\n══════ AUTH RESULT ══════")
         log("Enrolled: %.2f/sec, %.1fms gap, %d events".format(
@@ -288,22 +286,38 @@ class MainActivity : Activity(), NfcAdapter.ReaderCallback {
             attempt.avgEventsPerSecond, attempt.avgTimeBetweenEvents, attempt.eventCount
         ))
         log("Score: $score/3")
-        when {
-            score >= 2 -> { log(">>> MATCH <<<"); setStatus("AUTHENTICATED") }
-            score == 1 -> { log(">>> PARTIAL — inconclusive <<<"); setStatus("INCONCLUSIVE") }
-            else -> { log(">>> REJECTED <<<"); setStatus("REJECTED") }
+        when (SignatureAnalysis.verdict(score)) {
+            SignatureAnalysis.Verdict.MATCH -> { log(">>> MATCH <<<"); setStatus("AUTHENTICATED") }
+            SignatureAnalysis.Verdict.INCONCLUSIVE -> { log(">>> PARTIAL — inconclusive <<<"); setStatus("INCONCLUSIVE") }
+            SignatureAnalysis.Verdict.REJECTED -> { log(">>> REJECTED <<<"); setStatus("REJECTED") }
         }
         log("")
     }
 
-    private fun buildProfile(label: String, events: List<CaptureEvent>) = SignatureProfile(
-        avgEventsPerSecond = events.size / (CAPTURE_DURATION_MS / 1000.0),
-        avgTimeBetweenEvents = if (events.size > 1)
-            events.zipWithNext().map { (a, b) -> (b.timestampMs - a.timestampMs).toDouble() }.average() else 0.0,
-        eventCount = events.size,
-        techDistribution = events.flatMap { it.techList }.groupingBy { it }.eachCount(),
-        captureCount = 1,
-        label = label
+    private fun buildProfile(label: String, events: List<CaptureEvent>): SignatureProfile {
+        val p = SignatureAnalysis.buildProfile(
+            label = label,
+            timestampsMs = events.map { it.timestampMs },
+            perEventTechLists = events.map { it.techList },
+            durationMs = CAPTURE_DURATION_MS,
+        )
+        return SignatureProfile(
+            avgEventsPerSecond = p.avgEventsPerSecond,
+            avgTimeBetweenEvents = p.avgTimeBetweenEvents,
+            eventCount = p.eventCount,
+            techDistribution = p.techDistribution,
+            captureCount = p.captureCount,
+            label = p.label,
+        )
+    }
+
+    private fun SignatureProfile.toAnalysisProfile() = SignatureAnalysis.Profile(
+        avgEventsPerSecond = avgEventsPerSecond,
+        avgTimeBetweenEvents = avgTimeBetweenEvents,
+        eventCount = eventCount,
+        techDistribution = techDistribution,
+        captureCount = captureCount,
+        label = label,
     )
 
     private fun loadEnrolledProfile() {
@@ -353,9 +367,5 @@ class MainActivity : Activity(), NfcAdapter.ReaderCallback {
 
     private fun setStatus(msg: String) { runOnUiThread { statusView.text = msg } }
 
-    private fun stdDev(values: List<Double>): Double {
-        if (values.size < 2) return 0.0
-        val mean = values.average()
-        return Math.sqrt(values.map { (it - mean) * (it - mean) }.average())
-    }
+    private fun stdDev(values: List<Double>): Double = SignatureAnalysis.stdDev(values)
 }
